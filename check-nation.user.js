@@ -4,7 +4,7 @@
 // @version      2025-07-28
 // @description  check if a nation name is available
 // @author       Merethin
-// @match        https://*.nationstates.net/page=boneyard
+// @match        https://*.nationstates.net/*page=boneyard
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=nationstates.net
 // @grant        window.close
 // @grant        GM_setValue
