@@ -17,11 +17,11 @@
     'use strict';
 
     if(document.querySelector("p.info") != null) {
-        const name = document.querySelector("input[name='nation']").value;
+        const name = document.querySelector("input.larger[name='nation']").value;
         GM_setValue(name, "available");
         window.close();
     } else if (document.querySelector("p.error") != null) {
-        const name = document.querySelector("input[name='nation']").value;
+        const name = document.querySelector("input.larger[name='nation']").value;
         GM_setValue(name, "taken");
         window.close();
     }
