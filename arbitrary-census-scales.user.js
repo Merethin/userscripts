@@ -86,7 +86,7 @@ async function addScaleToChart(nation, scale, scaleName) {
         return;
     }
 
-    getChart().addSeries({
+    chart.addSeries({
         name: label,
         data: data,
         color: getRandomColor()
