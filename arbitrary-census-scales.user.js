@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Arbitrary Census Scales
-// @version      2026-03-23
+// @version      2026-05-12
 // @description  Show graphs for any census scales at once
 // @author       Merethin
 // @match        https://www.nationstates.net/*detail=trend*
@@ -64,13 +64,17 @@ function deleteScale(label) {
     }
 }
 
-async function addScaleToChart(nation, scale, scaleName) {
-    if(nation.length == 0) return;
-    let [name, data] = await fetchCensusData(nation, scale);
-    if(data.length == 0) return;
+function mergeAndSum(a, b) {
+    const map = new Map();
 
-    let label = `${scaleName} (${name})`;
+    for (const [t, v] of [...a, ...b]) {
+        map.set(t, (map.get(t) || 0) + v);
+    }
 
+    return [...map.entries()].sort((x, y) => x[0] - y[0]);
+}
+
+async function addScaleToChart(label, data, scale, scaleName) {
     let [lastPointX, lastPointY] = data[data.length - 1];
     data[data.length - 1] = { x: lastPointX, y: lastPointY, dataLabels: {
             enabled: true,
@@ -101,6 +105,29 @@ async function addScaleToChart(nation, scale, scaleName) {
     };
 
     document.getElementById("remove-container").appendChild(deleteBtn);
+}
+
+async function addScalesToChart(nations, scale, scaleName) {
+    if(nations.length == 0) return;
+
+    let nationsArray = nations.split("+").map((name) => name.trim());
+
+    let data = null;
+    let names = new Array();
+
+    for (const nation of nationsArray) {
+        if(nation.length == 0) return;
+        let [name, nationData] = await fetchCensusData(nation, scale);
+        if(nationData.length == 0) return;
+
+        names.push(name);
+        if(data == null) { data = nationData; }
+        else { data = mergeAndSum(data, nationData); }
+    }
+
+    let label = `${scaleName} (${names.join("+")})`;
+
+    await addScaleToChart(label, data, scale, scaleName);
 }
 
 (function() {
@@ -214,7 +241,7 @@ async function addScaleToChart(nation, scale, scaleName) {
         let scale = dropdown.value;
         let scaleName = dropdown.options[dropdown.selectedIndex].innerText;
 
-        await addScaleToChart(name, scale, scaleName);
+        await addScalesToChart(name, scale, scaleName);
     };
 
     document.querySelector("div#content").appendChild(injectedDiv);
